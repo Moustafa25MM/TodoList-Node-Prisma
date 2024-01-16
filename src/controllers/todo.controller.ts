@@ -116,3 +116,70 @@ export const getAllCompletedTodos = async (
       .json({ msg: 'Error occurred while getting completed Todos' });
   }
 };
+
+export const updateTodo = async (request: any, response: Response) => {
+  try {
+    const { id } = request.params;
+    const { name, isCompleted } = request.body;
+    const userId = request.user;
+
+    if (!name && !isCompleted) {
+      return response.status(400).json({
+        msg: 'no data to update with',
+      });
+    }
+    const existingTodo = await models.Todo.findOne({
+      name: name,
+      user: userId,
+      _id: { $ne: id },
+    });
+
+    if (existingTodo) {
+      return response.status(400).json({
+        msg: 'There is a Todo with that name',
+      });
+    }
+    const todo = await models.Todo.findOneAndUpdate(
+      { _id: id, user: userId },
+      { name, isCompleted },
+      { new: true }
+    );
+
+    if (!todo) {
+      return response.status(404).json({
+        msg: 'Todo not found or you do not have permission to update it',
+      });
+    }
+
+    return response
+      .status(200)
+      .json({ msg: 'Todo updated successfully', todo });
+  } catch (error) {
+    console.log('Error occurred while updating Todo', error);
+    return response
+      .status(500)
+      .json({ msg: 'Error occurred while updating Todo' });
+  }
+};
+
+export const deleteTodo = async (request: any, response: Response) => {
+  try {
+    const { id } = request.params;
+    const userId = request.user;
+
+    const result = await models.Todo.deleteOne({ _id: id, user: userId });
+
+    if (result.deletedCount === 0) {
+      return response.status(404).json({
+        msg: 'Todo not found or you do not have permission to delete it',
+      });
+    }
+
+    return response.status(200).json({ msg: 'Todo deleted successfully' });
+  } catch (error) {
+    console.log('Error occurred while deleting Todo', error);
+    return response
+      .status(500)
+      .json({ msg: 'Error occurred while deleting Todo' });
+  }
+};
