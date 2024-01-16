@@ -64,3 +64,26 @@ export const toggleTodoStatus = async (request: any, response: Response) => {
       .json({ msg: 'error occurred while toggle todo status' });
   }
 };
+
+export const getTodoById = async (request: any, response: Response) => {
+  try {
+    const { id } = request.params;
+    const userId = request.user;
+
+    const todo = await models.Todo.findOne({ _id: id, user: userId });
+    if (!todo) {
+      return response
+        .status(404)
+        .json({
+          msg: 'Todo not found or you do not have permission to view it',
+        });
+    }
+
+    return response.status(200).json(todo);
+  } catch (error) {
+    console.log('Error occurred while getting a Todo by ID', error);
+    return response
+      .status(500)
+      .json({ msg: 'Error occurred while getting a Todo by ID' });
+  }
+};
