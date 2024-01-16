@@ -1,19 +1,16 @@
 import express, { Express, Response, Request } from 'express';
 import * as dotenv from 'dotenv';
-import mongoose from 'mongoose';
 import morgan from 'morgan';
+import connectDB from './database';
 
 dotenv.config();
-
-const mongoUrl = process.env.MONGO_URL as string;
-mongoose
-  .connect(mongoUrl)
-  .then(() => console.log('DB connected'))
-  .catch(() => console.log('DB connection failed'));
 
 const app: Express = express();
 app.use(express.json());
 app.use(morgan('tiny'));
+
+const mongoUrl: string = process.env.MONGO_URL as string;
+connectDB(mongoUrl);
 
 app.use('/', (req: Request, res: Response) => {
   console.log('Index');
