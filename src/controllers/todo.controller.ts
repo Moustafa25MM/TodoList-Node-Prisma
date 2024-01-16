@@ -99,3 +99,20 @@ export const getAllTodos = async (request: any, response: Response) => {
       .json({ msg: 'Error occurred while getting all Todos' });
   }
 };
+
+export const getAllCompletedTodos = async (
+  request: any,
+  response: Response
+) => {
+  try {
+    const userId = request.user;
+    const todos = await models.Todo.find({ user: userId, isCompleted: true });
+
+    return response.status(200).json(todos);
+  } catch (error) {
+    console.log('Error occurred while getting completed Todos', error);
+    return response
+      .status(500)
+      .json({ msg: 'Error occurred while getting completed Todos' });
+  }
+};
