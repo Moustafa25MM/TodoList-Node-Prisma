@@ -3,6 +3,7 @@ import * as dotenv from 'dotenv';
 import morgan from 'morgan';
 import connectDB from './database';
 import { indexRouter } from './routes';
+import cors from 'cors';
 
 dotenv.config();
 
@@ -12,6 +13,8 @@ app.use(morgan('tiny'));
 
 const mongoUrl: string = process.env.MONGO_URL as string;
 connectDB(mongoUrl);
+
+app.use(cors());
 
 app.use(indexRouter);
 
