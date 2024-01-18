@@ -30,7 +30,7 @@ export const loginUser = async (request: Request, response: Response) => {
     const { email, password } = request.body;
     const existingUser = await models.User.findOne({ email });
     if (!existingUser) {
-      return response.status(401).json({ error: 'user does not exist' });
+      return response.status(404).json({ error: 'user does not exist' });
     }
 
     const comparePassword = await bcrypt.compare(
@@ -39,7 +39,7 @@ export const loginUser = async (request: Request, response: Response) => {
     );
 
     if (!comparePassword) {
-      response.status(401).json({ error: 'Invalid email or password' });
+      response.status(404).json({ error: 'Invalid email or password' });
     }
     const token = authMethods.generateJWT({ id: existingUser.id });
 
@@ -53,4 +53,8 @@ export const loginUser = async (request: Request, response: Response) => {
     console.log('error occurred in LoginUser', error);
     throw error;
   }
+};
+
+export const logoutUser = (request: Request, response: Response) => {
+  response.status(200).send('User logged out successfully');
 };
