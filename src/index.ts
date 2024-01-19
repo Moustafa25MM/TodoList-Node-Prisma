@@ -4,6 +4,7 @@ import morgan from 'morgan';
 import connectDB from './database';
 import { indexRouter } from './routes';
 import cors from 'cors';
+import prisma from './client';
 
 dotenv.config();
 
@@ -11,8 +12,12 @@ const app: Express = express();
 app.use(express.json());
 app.use(morgan('tiny'));
 
-const mongoUrl: string = process.env.MONGO_URL as string;
-connectDB(mongoUrl);
+// const mongoUrl: string = process.env.MONGO_URL as string;
+// connectDB(mongoUrl);
+
+prisma.$connect().then(() => {
+  console.log('Successfully Connected to Database.');
+});
 
 app.use(cors());
 

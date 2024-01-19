@@ -1,5 +1,6 @@
 import { NextFunction, Response } from 'express';
-import { models } from '../models';
+// import { models } from '../models';
+import prisma from '../client';
 
 export const createTodo = async (
   request: any,
@@ -10,15 +11,32 @@ export const createTodo = async (
     const userId = request.user;
     const { name, isCompleted } = request.body;
 
-    const exisitingTodo = await models.Todo.findOne({ user: userId, name });
-    if (exisitingTodo) {
+    // const exisitingTodo = await models.Todo.findOne({ user: userId, name });
+    const existingTodo = await prisma.todo.findFirst({
+      where: {
+        userId: userId,
+        name: name,
+      },
+    });
+
+    if (existingTodo) {
       return response.status(409).json({ msg: 'Todo name already exists' });
     }
-    const todo = await models.Todo.create({
-      name,
-      isCompleted,
-      user: userId,
+
+    const todo = await prisma.todo.create({
+      data: {
+        name,
+        isCompleted,
+        user: {
+          connect: { id: userId },
+        },
+      },
     });
+    // const todo = await models.Todo.create({
+    //   name,
+    //   isCompleted,
+    //   user: userId,
+    // });
     return response
       .status(201)
       .json({ msg: 'Todo created successfully', todo: todo });
@@ -34,26 +52,35 @@ export const toggleTodoStatus = async (request: any, response: Response) => {
     const { id } = request.params;
 
     const user = request.user;
-    const existingTodo = await models.Todo.findById(id);
+    // const existingTodo = await models.Todo.findById(id);
+
+    const existingTodo = await prisma.todo.findUnique({
+      where: { id: id },
+    });
 
     if (!existingTodo) {
       return response
         .status(400)
         .json({ msg: 'There is no Todo with that Id' });
     }
-    if (user !== existingTodo?.user.toString()) {
+    if (user !== existingTodo?.userId.toString()) {
       return response
         .status(400)
         .json({ msg: 'This Todo was not created by you to update' });
     }
-    const todo = await models.Todo.updateOne(
-      {
-        _id: id,
-      },
-      {
-        isCompleted,
-      }
-    );
+    // const todo = await models.Todo.updateOne(
+    //   {
+    //     _id: id,
+    //   },
+    //   {
+    //     isCompleted,
+    //   }
+    // );
+    const todo = await prisma.todo.update({
+      where: { id: id },
+      data: { isCompleted },
+    });
+
     return response
       .status(200)
       .json({ msg: 'Todo Updated Successfully ', todo: todo });
@@ -70,7 +97,15 @@ export const getTodoById = async (request: any, response: Response) => {
     const { id } = request.params;
     const userId = request.user;
 
-    const todo = await models.Todo.findOne({ _id: id, user: userId });
+    // const todo = await models.Todo.findOne({ _id: id, user: userId });
+
+    const todo = await prisma.todo.findFirst({
+      where: {
+        id: id,
+        userId: userId,
+      },
+    });
+
     if (!todo) {
       return response.status(404).json({
         msg: 'Todo not found or you do not have permission to view it',
@@ -89,7 +124,11 @@ export const getTodoById = async (request: any, response: Response) => {
 export const getAllTodos = async (request: any, response: Response) => {
   try {
     const userId = request.user;
-    const todos = await models.Todo.find({ user: userId });
+    // const todos = await models.Todo.find({ user: userId });
+
+    const todos = await prisma.todo.findMany({
+      where: { userId: userId },
+    });
 
     return response.status(200).json(todos);
   } catch (error) {
@@ -106,7 +145,14 @@ export const getAllCompletedTodos = async (
 ) => {
   try {
     const userId = request.user;
-    const todos = await models.Todo.find({ user: userId, isCompleted: true });
+    // const todos = await models.Todo.find({ user: userId, isCompleted: true });
+
+    const todos = await prisma.todo.findMany({
+      where: {
+        userId: userId,
+        isCompleted: true,
+      },
+    });
 
     return response.status(200).json(todos);
   } catch (error) {
@@ -120,7 +166,14 @@ export const getAllCompletedTodos = async (
 export const getInCompletedTodos = async (request: any, response: Response) => {
   try {
     const userId = request.user;
-    const todos = await models.Todo.find({ user: userId, isCompleted: false });
+    // const todos = await models.Todo.find({ user: userId, isCompleted: false });
+
+    const todos = await prisma.todo.findMany({
+      where: {
+        userId: userId,
+        isCompleted: false,
+      },
+    });
 
     return response.status(200).json(todos);
   } catch (error) {
@@ -142,10 +195,19 @@ export const updateTodo = async (request: any, response: Response) => {
         msg: 'no data to update with',
       });
     }
-    const existingTodo = await models.Todo.findOne({
-      name: name,
-      user: userId,
-      _id: { $ne: id },
+    // const existingTodo = await models.Todo.findOne({
+    //   name: name,
+    //   user: userId,
+    //   _id: { $ne: id },
+    // });
+    const existingTodo = await prisma.todo.findFirst({
+      where: {
+        name: name,
+        userId: userId,
+        NOT: {
+          id: id,
+        },
+      },
     });
 
     if (existingTodo) {
@@ -153,11 +215,22 @@ export const updateTodo = async (request: any, response: Response) => {
         msg: 'There is a Todo with that name',
       });
     }
-    const todo = await models.Todo.findOneAndUpdate(
-      { _id: id, user: userId },
-      { name, isCompleted },
-      { new: true }
-    );
+    // const todo = await models.Todo.findOneAndUpdate(
+    //   { _id: id, user: userId },
+    //   { name, isCompleted },
+    //   { new: true }
+    // );
+
+    const todo = await prisma.todo.update({
+      where: {
+        id: id,
+        userId: userId,
+      },
+      data: {
+        name: name,
+        isCompleted: isCompleted,
+      },
+    });
 
     if (!todo) {
       return response.status(404).json({
@@ -181,9 +254,16 @@ export const deleteTodo = async (request: any, response: Response) => {
     const { id } = request.params;
     const userId = request.user;
 
-    const result = await models.Todo.deleteOne({ _id: id, user: userId });
+    // const result = await models.Todo.deleteOne({ _id: id, user: userId });
 
-    if (result.deletedCount === 0) {
+    const result = await prisma.todo.delete({
+      where: {
+        id: id,
+        userId: userId,
+      },
+    });
+
+    if (result.userId !== userId) {
       return response.status(404).json({
         msg: 'Todo not found or you do not have permission to delete it',
       });

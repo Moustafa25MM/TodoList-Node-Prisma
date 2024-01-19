@@ -1,7 +1,8 @@
 import * as jwt from 'jsonwebtoken';
 import * as dotenv from 'dotenv';
 import { Request, Response, NextFunction } from 'express';
-import { models } from '../models';
+// import { models } from '../models';
+import prisma from '../client';
 
 dotenv.config();
 const JWTSecret = process.env.JWT_SECRET;
@@ -20,7 +21,7 @@ const isAuthenicated = async (
 ) => {
   try {
     const token = request.headers.authorization;
-
+    console.log(token);
     if (!token) {
       return response
         .status(401)
@@ -29,7 +30,12 @@ const isAuthenicated = async (
     const payload: { id: string } = jwt.verify(token, JWTSecret as string) as {
       id: string;
     };
-    const existingUser = await models.User.findById(payload.id);
+    // const existingUser = await models.User.findById(payload.id);
+    const existingUser = await prisma.user.findUnique({
+      where: {
+        id: payload.id,
+      },
+    });
     if (!existingUser) {
       return response.status(400);
     }
