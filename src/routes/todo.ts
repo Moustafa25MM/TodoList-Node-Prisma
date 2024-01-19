@@ -4,6 +4,7 @@ import {
   deleteTodo,
   getAllCompletedTodos,
   getAllTodos,
+  getInCompletedTodos,
   getTodoById,
   toggleTodoStatus,
   updateTodo,
@@ -19,6 +20,7 @@ router.put('/toggle/:id', toggleTodoStatus);
 router.put('/update/:id', updateTodo);
 router.get('/find/all', getAllTodos);
 router.get('/completed/all', getAllCompletedTodos);
+router.get('/incompleted/all', getInCompletedTodos);
 router.get('/get/:id', getTodoById);
 router.delete('/delete/:id', deleteTodo);
 

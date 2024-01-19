@@ -10,7 +10,7 @@ export const createTodo = async (
     const userId = request.user;
     const { name, isCompleted } = request.body;
 
-    const exisitingTodo = await models.Todo.findOne({ name });
+    const exisitingTodo = await models.Todo.findOne({ user: userId, name });
     if (exisitingTodo) {
       return response.status(409).json({ msg: 'Todo name already exists' });
     }
@@ -117,6 +117,20 @@ export const getAllCompletedTodos = async (
   }
 };
 
+export const getInCompletedTodos = async (request: any, response: Response) => {
+  try {
+    const userId = request.user;
+    const todos = await models.Todo.find({ user: userId, isCompleted: false });
+
+    return response.status(200).json(todos);
+  } catch (error) {
+    console.log('Error occurred while getting Incompleted Todos', error);
+    return response
+      .status(500)
+      .json({ msg: 'Error occurred while getting Incompleted Todos' });
+  }
+};
+
 export const updateTodo = async (request: any, response: Response) => {
   try {
     const { id } = request.params;
@@ -135,7 +149,7 @@ export const updateTodo = async (request: any, response: Response) => {
     });
 
     if (existingTodo) {
-      return response.status(400).json({
+      return response.status(409).json({
         msg: 'There is a Todo with that name',
       });
     }

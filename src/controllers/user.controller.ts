@@ -39,7 +39,7 @@ export const loginUser = async (request: Request, response: Response) => {
     );
 
     if (!comparePassword) {
-      response.status(404).json({ error: 'Invalid email or password' });
+      return response.status(404).json({ error: 'Invalid email or password' });
     }
     const token = authMethods.generateJWT({ id: existingUser.id });
 
@@ -48,7 +48,7 @@ export const loginUser = async (request: Request, response: Response) => {
       name: existingUser.name,
       email: existingUser.email,
     };
-    response.status(200).json({ token, user: userData });
+    return response.status(200).json({ token, user: userData });
   } catch (error) {
     console.log('error occurred in LoginUser', error);
     throw error;
