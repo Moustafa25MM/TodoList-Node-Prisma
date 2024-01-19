@@ -5,6 +5,7 @@ import connectDB from './database';
 import { indexRouter } from './routes';
 import cors from 'cors';
 import prisma from './client';
+import { errorHandler } from './middlewares/errorhandler';
 
 dotenv.config();
 
@@ -22,6 +23,7 @@ prisma.$connect().then(() => {
 app.use(cors());
 
 app.use(indexRouter);
+app.use(errorHandler);
 
 const port = process.env.PORT;
 app.listen(port, () => {
