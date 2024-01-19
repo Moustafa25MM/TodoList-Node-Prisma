@@ -21,7 +21,6 @@ const isAuthenicated = async (
 ) => {
   try {
     const token = request.headers.authorization;
-    console.log(token);
     if (!token) {
       return response
         .status(401)

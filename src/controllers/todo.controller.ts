@@ -83,7 +83,7 @@ export const toggleTodoStatus = async (request: any, response: Response) => {
 
     return response
       .status(200)
-      .json({ msg: 'Todo Updated Successfully ', todo: todo });
+      .json({ msg: 'Todo Updated Successfully', todo: todo });
   } catch (error) {
     console.log('error occurred while toggle todo status', error);
     return response
