@@ -5,6 +5,7 @@ import bcrypt from 'bcrypt';
 
 describe('User Routes', () => {
   beforeAll(async () => {
+    await prisma.todo.deleteMany({});
     await prisma.user.deleteMany({});
     await prisma.user.create({
       data: {
@@ -27,7 +28,7 @@ describe('User Routes', () => {
     };
 
     const response = await request(app)
-      .post('/create/user')
+      .post('/user/create')
       .send(newUser)
       .expect(201);
 
@@ -41,7 +42,7 @@ describe('User Routes', () => {
     };
 
     const response = await request(app)
-      .post('/login/user')
+      .post('/user/login')
       .send(credentials)
       .expect(200);
 
@@ -57,7 +58,7 @@ describe('User Routes', () => {
     };
 
     const response = await request(app)
-      .post('/login/user')
+      .post('/user/login')
       .send(credentials)
       .expect(404);
 
