@@ -14,7 +14,7 @@ export const createUser = async (request: Request, response: Response) => {
     });
 
     if (existingUser) {
-      return response.status(409).send('user already exists');
+      return response.status(409).json('user already exists');
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
@@ -30,7 +30,7 @@ export const createUser = async (request: Request, response: Response) => {
         password: hashedPassword,
       },
     });
-    return response.status(201).send('user created successfully');
+    return response.status(201).json({ user: 'user created successfully' });
   } catch (error) {
     console.log('error occured in create user', error);
     throw error;
@@ -73,5 +73,5 @@ export const loginUser = async (request: Request, response: Response) => {
 };
 
 export const logoutUser = (request: Request, response: Response) => {
-  response.status(200).send('User logged out successfully');
+  response.status(200).json('User logged out successfully');
 };
