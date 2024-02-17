@@ -4,7 +4,7 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import { authMethods } from '../middlewares/auth';
 
-export const createUser = async (request: Request, response: Response) => {
+export const registerUser = async (request: Request, response: Response) => {
   try {
     const { name, email, password } = request.body;
     // const existingUser = await models.User.findOne({ email });

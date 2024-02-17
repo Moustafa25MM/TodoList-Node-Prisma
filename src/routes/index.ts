@@ -1,10 +1,10 @@
 import { Router } from 'express';
-import { UserRoutes } from './user';
+import { AuthRoutes } from './auth';
 import { TodoRoutes } from './todo';
 
 const router = Router();
 
-router.use('/user', UserRoutes);
+router.use('/auth', AuthRoutes);
 router.use('/todo', TodoRoutes);
 
 export const indexRouter: Router = router;
