@@ -56,7 +56,7 @@ export const loginUser = async (request: Request, response: Response) => {
     );
 
     if (!comparePassword) {
-      return response.status(404).json({ error: 'Invalid email or password' });
+      return response.status(401).json({ error: 'Invalid email or password' });
     }
     const token = authMethods.generateJWT({ id: existingUser.id });
 
