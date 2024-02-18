@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  app:
+    container_name: techhive_app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '4000:4000'
+    environment:
+      - MONGO_URL=mongodb+srv://admin:ghandorbatlyshga3@cluster0.95slelx.mongodb.net/TechHive
+      - PORT=4000
+      - JWT_SECRET=TechHive
+    command: ['./command.sh']
+    depends_on:
+      - mongo
+    networks:
+      - techhive_net
+
+  mongo:
+    container_name: techhive_mongo
+    image: mongo
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=ghandorbatlyshga3
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - techhive_net
+
+volumes:
+  mongo_data:
+
+networks:
+  techhive_net:
+    driver: bridge
