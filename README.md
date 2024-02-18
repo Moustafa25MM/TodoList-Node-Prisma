@@ -3,7 +3,17 @@
 ## Installation
 
 ```bash
-npm i
+
+if you have Docker :
+docker-compose build
+docker-compose up
+
+
+OR
+1. npm install
+2. npm start -> to run the server
+
+After modify .env file
 ```
 
 ## Usage
